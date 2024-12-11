@@ -1,22 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView } from 'react-native';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 
-
 const Home = () => {
-  return (
-    <View style={styles.container}>
+    const [tasks, setTasks] = useState([]); // State to store fetched tasks
+    const [loading, setLoading] = useState(true); // State for loading status
 
-        <View style={styles.searchContainer}>
-            <TextInput 
-                style={styles.searchInput} 
-                placeholder="Search for tasks..."
-                placeholderTextColor="#888"
-            />
-            <EvilIcons name="search" size={25} color="black" style={styles.searchIcon} />
-        </View>
+    // Fetch data when the component mounts
+    useEffect(() => {
+        fetch('http://localhost:5038/api/QuestApp/getquest') // Adjust URL if running on a real device
+            .then(response => response.json())
+            .then(data => {
+                setTasks(data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error("Error fetching tasks:", error);
+                setLoading(false);
+            });
+    }, []);
 
-        <View style={styles.filterContainer}>
+    return (
+        <View style={styles.container}>
+            <View style={styles.searchContainer}>
+                <TextInput 
+                    style={styles.searchInput} 
+                    placeholder="Search for tasks..."
+                    placeholderTextColor="#888"
+                />
+                <EvilIcons name="search" size={25} color="black" style={styles.searchIcon} />
+            </View>
+
+            <View style={styles.filterContainer}>
                 <TouchableOpacity style={styles.filterBox}>
                     <Text style={styles.label}>All</Text>
                 </TouchableOpacity>
@@ -37,44 +52,35 @@ const Home = () => {
                 </TouchableOpacity>
             </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={styles.taskContainer}>
-                {[
-                    {
-                        name: "Avril Mahinay",
-                        description: "I need help with tutoring in subjects like Computer Programming and Information Management. If you have a background in education or tutoring, I'd love to hear from you."
-                    },
-                    {
-                        name: "Joana Razon",
-                        description: "I have some printing and copying tasks that need to be completed. If you have access to printing facilities and can help, please let me know."
-                    },
-                    {
-                        name: "Jonnavien Asuelo",
-                        description: "I'm planning an event and could use some extra hands for set-up, coordination, and cleanup. If you're organized and enjoy working at events, I'd appreciate your help!"
-                    },
-                    {
-                        name: "Shiela Theresa Mosqueda",
-                        description: "I need assistance with picking up and delivering items, like groceries or packages. A reliable vehicle is a must!"
-                    },
-                    {
-                        name: "Jules Gifford Filoteo",
-                        description: "I lost my phone and the last place I went is in the cafeteria. If somebody finds it, please let me know."
-                    }
-                ].map((task, index) => (
-                    <TouchableOpacity key={index} style={styles.taskBox}>
-                        <View style={styles.row}>
-                            <EvilIcons name="user" size={25} color="black" />
-                            <Text style={styles.taskTitle}>{task.name}</Text>
-                            <Text style={styles.taskPrice}>Php 100</Text>
-                            
-                        </View>
-                        <Text style={styles.taskLabel}>{task.description}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-        </ScrollView>
-    </View>
-  );
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.taskContainer}>
+                {loading ? (
+            <Text>Loading tasks...</Text> // Display while loading
+            ) : (
+            tasks.map((task, index) => (
+                <TouchableOpacity key={index} style={styles.taskBox}>
+                    <View style={styles.row}>
+                        <EvilIcons name="user" size={25} color="black" />
+                        <Text style={styles.taskTitle}>{task.name}</Text>
+                        <Text style={styles.taskPrice}>Php {task.amount}</Text>
+                    </View>
+                    <Text style={styles.taskLabel}>
+                        Skills Required: {task.skillsrequired || "None"}
+                    </Text>
+                    <Text style={styles.taskLabel}>
+                        Payment Method: {task.paymentmethod}
+                    </Text>
+                    <Text style={styles.taskLabel}>
+                        Date: {new Date(task.date).toLocaleDateString()}
+                    </Text>
+                </TouchableOpacity>
+                ))
+            )}
+
+                </View>
+            </ScrollView>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
@@ -109,19 +115,18 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     marginVertical: 10,
-},
-filterBox: {
-    backgroundColor: 'white',
-    paddingVertical: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    margin: 5,
-    
-    borderWidth: 1,
-    borderColor: '#ddd',
-},  
+  },
+  filterBox: {
+      backgroundColor: 'white',
+      paddingVertical: 5,
+      flexDirection: 'row',
+      justifyContent: 'space-evenly',
+      paddingHorizontal: 15,
+      borderRadius: 5,
+      margin: 5,
+      borderWidth: 1,
+      borderColor: '#ddd',
+  },
   label: {
       fontSize: 14,
       color: 'grey',

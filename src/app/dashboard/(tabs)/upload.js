@@ -1,89 +1,153 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator, Button } from 'react-native';
 
 const Upload = () => {
   const [postContent, setPostContent] = useState('');
+  const [category, setCategory] = useState('');
+  const [skillsRequired, setSkillsRequired] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [amount, setAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [loading, setLoading] = useState(false);  // Loading state
 
-  const handlePost = () => {
-    console.log('Post Submitted:', postContent);
+  const API_URL = "http://localhost:5038/";
 
+  const onClick = async () => {
+    var newquest=document.getElementById("newquest").value;
+    const data=new FormData();
+    data.append("newquest", newquest);
+
+    fetch(API_URL+'api/QuestApp/addquest', {
+      method: 'POST',
+     body:data
+    })
+   .then(res=>res.json())
+   .then((result)=>{
+    alert(result);
+    this.refreshquest
+
+   });
+  }
+
+
+  const handlePost = async () => {
+    setLoading(true);  // Set loading to true when post starts
+    const questDetails = {
+      name: postContent,
+      category,
+      skillsrequired: skillsRequired,
+      date: deadline,
+      amount,
+      paymentmethod: paymentMethod,
+    };
+
+
+
+    try {
+      const response = await fetch('http://localhost:5038/api/QuestApp/addquest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(questDetails),
+      });
+
+      if (response.ok) {
+        Alert.alert('Success', 'Quest posted successfully!');
+        // Clear form after posting
+        setPostContent('');
+        setCategory('');
+        setSkillsRequired('');
+        setDeadline('');
+        setAmount('');
+        setPaymentMethod('');
+      } else {
+        Alert.alert('Error', 'Failed to post quest.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'An error occurred while posting the quest.');
+    } finally {
+      setLoading(false);  // Set loading to false once request completes
+    }
   };
 
   return (
-    <View style={styles.container}>
-
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <Text style={styles.title}>Post Quest</Text>
-
 
       <TextInput
         style={styles.input}
-        placeholder="Post a tasks..."
+        placeholder="Title"
         placeholderTextColor="#888"
-        multiline
-        height={150}
-        numberOfLines={10}
         value={postContent}
         onChangeText={setPostContent}
+        accessibilityLabel="quest-post-content"
       />
 
-        <Text style = {{ fontSize: 16, fontWeight: 'bold', alignContent: 'center'}}>Category</Text>
-              <View style={styles.filterContainer}>
-                  <TouchableOpacity style={styles.filterBox}>
-                      <Text style={styles.label}>Personal</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.filterBox}>
-                      <Text style={styles.label}>Event Assistant</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.filterBox}>
-                      <Text style={styles.label}>Printing</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.filterBox}>
-                      <Text style={styles.label}>Pick-up & Delivery</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.filterBox}>
-                      <Text style={styles.label}>Lost & Found</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.filterBox}>
-                      <Text style={styles.label}>Tutoring</Text>
-                  </TouchableOpacity>
-                </View>
+      <Text style={styles.label}>Category</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Category"
+        placeholderTextColor="#888"
+        value={category}
+        onChangeText={setCategory}
+        accessibilityLabel="quest-category"
+      />
 
-            <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Skill required</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Skill required"
-                        placeholderTextColor="#888"
-                    />
-            </View>
-            <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Deadline for completion</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholderTextColor="#888"
-                    />
-            </View>
-            <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Amount</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholderTextColor="#888"
-                    />
-            </View>
-            <View style={styles.inputContainer}>
-                  
-                    <Text style={styles.label}>Payment Method</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholderTextColor="#888"
-                    />
-            </View>
+      <Text style={styles.label}>Skill required</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Skill required"
+        placeholderTextColor="#888"
+        value={skillsRequired}
+        onChangeText={setSkillsRequired}
+        accessibilityLabel="quest-skills-required"
+      />
 
-      <TouchableOpacity style={styles.postButton} onPress={handlePost}>
-        <Text style={styles.postButtonText}>Post</Text>
+      <Text style={styles.label}>Deadline for completion</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter deadline (e.g., 2025-11-22)"
+        placeholderTextColor="#888"
+        value={deadline}
+        onChangeText={setDeadline}
+        accessibilityLabel="quest-deadline"
+      />
+
+      <Text style={styles.label}>Amount</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Amount (e.g., 100)"
+        placeholderTextColor="#888"
+        keyboardType="numeric"
+        value={amount}
+        onChangeText={setAmount}
+        accessibilityLabel="quest-amount"
+      />
+
+      <Text style={styles.label}>Payment Method</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Payment Method (e.g., on hand)"
+        placeholderTextColor="#888"
+        value={paymentMethod}
+        onChangeText={setPaymentMethod}
+        accessibilityLabel="quest-payment-method"
+      />
+
+      <TouchableOpacity
+        style={[styles.postButton, { opacity: postContent ? 1 : 0.6 }]}
+        onPress={postContent ? handlePost : null}
+        disabled={!postContent} // Disable button if no content
+      >
+
+
+       <Button onClick={()=>this.addClick()}>Post Quest</Button>
       </TouchableOpacity>
-    </View>
+
+      {loading && <ActivityIndicator size="large" color="#0f3c73" style={styles.loading} />}  {/* Loading indicator */}
+    </ScrollView>
   );
 };
 
@@ -91,15 +155,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#cbd2da',
+  },
+  scrollContent: {
     padding: 20,
   },
   title: {
     fontSize: 30,
     fontWeight: 'bold',
     color: '#0f3c73',
-    paddingHorizontal: 5,
     marginBottom: 20,
-    textAlign: 'left',
   },
   input: {
     backgroundColor: '#fff',
@@ -108,51 +172,13 @@ const styles = StyleSheet.create({
     borderColor: 'grey',
     padding: 15,
     fontSize: 16,
-    color: 'black',
-    textAlignVertical: 'top',
     marginBottom: 20,
-    elevation: 3,
-  },
-  uploadButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 20,
-    elevation: 3,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    marginVertical: 10,
-},
-  filterBox: {
-    backgroundColor: 'white',
-    paddingVertical: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    margin: 5,
-    borderWidth: 1,
-    borderColor: '#ddd',
-},
-  inputContainer: {
-    width: '100%',  
-    height: 50,
-    marginBottom: 5,
   },
   label: {
     fontSize: 16,
-    color: '#333',
+    fontWeight: 'bold',
     marginBottom: 5,
-},
-  uploadText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: '#4a4a72',
+    color: '#333',
   },
   postButton: {
     backgroundColor: '#0f3c73',
@@ -165,6 +191,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
+  },
+  loading: {
+    marginTop: 20,
   },
 });
 
