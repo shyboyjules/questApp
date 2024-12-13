@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
@@ -7,16 +7,38 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-
 const Login = () => {
+  const router = useRouter();  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    const router = useRouter ();
+  const handleLogin = async () => {
+    const loginData = { email, password };
+
+    try {
+      const response = await fetch('http://192.168.1.40:5000/api/user/login', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        await AsyncStorage.setItem('token', data.token);
+        router.replace('dashboard'); 
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error during login');
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.floatingContainer}>
         <Text style={styles.title}>Quest Board</Text>
-
         <View style={styles.inputContainer}>
           <MaterialIcons name="email" size={15} color="#333" style={styles.icon} />
           <TextInput
@@ -25,7 +47,6 @@ const Login = () => {
             placeholderTextColor="#888"
           />
         </View>
-
         <View style={styles.inputContainer}>
           <FontAwesome6 name="lock" size={15} color="#333" style={styles.icon} />
           <TextInput
@@ -35,27 +56,22 @@ const Login = () => {
             placeholderTextColor="#888"
           />
         </View>
-
         <View style={{ marginTop: 10, fontSize: 14, justifyContent: 'center', alignItems: 'center'}}>    
           <TouchableOpacity onPress={() => router.push('recover')}>
             <Text style={[styles.recoverText, styles.link]}> Forgot password?</Text>
           </TouchableOpacity>
         </View>
-
         <TouchableOpacity
           style={styles.button}
           onPress={() => router.replace('dashboard')}>
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
-
         <Text style={{ fontSize: 18, textAlign:'center', marginTop: 20, marginBottom: 10, color: 'black'}}>OR</Text>
-
         <View style={styles.iconContainer}>
           <FontAwesome5 name="facebook" size={24} color="white" style={styles.iconSpacing} />
           <AntDesign name="google" size={24} color="white" style={styles.iconSpacing} />
           <FontAwesome name="telegram" size={24} color="white" style={styles.iconSpacing} />
         </View>
-
         <Text style={styles.footerText}>
           Don't you have an account?{' '}
           <Text style={styles.link} onPress={() => router.push('register')}>
@@ -146,5 +162,4 @@ const styles = StyleSheet.create({
     alignContent: 'space-between',
   },
 });
-
 export default Login;

@@ -1,95 +1,140 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router'
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const Register = () => {
+  const router = useRouter();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [age, setAge] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const router = useRouter ();
+  const handleRegister = async () => {
+    const userData = { firstName, lastName, age, phoneNumber, email, password, confirmPassword };
 
-    return (
-      <View style={styles.container}> 
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
 
-        <View style={styles.floatingContainer}>
+    if (!firstName || !lastName || !age || !phoneNumber || !email || !password || !confirmPassword) {
+      alert('Please fill in all fields');
+      return;
+    }
 
-          <Text style={styles.title}>Create an Account</Text>
+    try {
+      const response = await fetch('http://192.168.1.40:5000/api/user/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
 
-          <View style={styles.nameContainer}>
-            <View style={styles.inputWrapper}>
-              <TextInput
-                style={styles.input}
-                placeholder="First Name"
-                placeholderTextColor="#888"
-              />
-            </View>
-            <View style={styles.inputWrapper}>
-              <TextInput
-                style={styles.input}
-                placeholder="Last Name"
-                placeholderTextColor="#888"
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Age"
-              placeholderTextColor="#888"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Phone Number"
-              placeholderTextColor="#888"
-            />
-          </View>
-  
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#888"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry
-              placeholderTextColor="#888"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-              secureTextEntry
-              placeholderTextColor="#888"
-            />
-          </View>
-  
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push('account')}>
-            <Text style={styles.buttonText}>Create Account</Text>
-          </TouchableOpacity>
-  
-          <Text style={styles.footerText}>
-            Already have an account?{' '}
-            <Text style={styles.link} onPress={() => router.back('Login')}>
-              Login
-            </Text>
-          </Text>
-        </View>
-      </View>
-    );
+      const data = await response.json();
+      if (response.ok) {
+        router.push('account');
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error during registration');
+    }
   };
-  
 
+  return (
+    <View style={styles.container}> 
+      <View style={styles.floatingContainer}>
+        <Text style={styles.title}>Create an Account</Text>
+        <View style={styles.nameContainer}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="First Name"
+              placeholderTextColor="#888"
+              value={firstName}
+              onChangeText={setFirstName}
+            />
+          </View>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder="Last Name"
+              placeholderTextColor="#888"
+              value={lastName}
+              onChangeText={setLastName}
+            />
+          </View>
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Age"
+            placeholderTextColor="#888"
+            value={age}
+            onChangeText={setAge}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            placeholderTextColor="#888"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#888"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry
+            placeholderTextColor="#888"
+            value={password} 
+            onChangeText={setPassword}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            secureTextEntry
+            placeholderTextColor="#888"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword} 
+          />
+        </View>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRegister} 
+        >
+          <Text style={styles.buttonText}>Create Account</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.footerText}>
+          Already have an account?{' '}
+          <Text style={styles.link} onPress={() => router.back('Login')}>
+            Login
+          </Text>
+        </Text>
+      </View>
+    </View>
+  );
+};
+  
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -170,5 +215,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
 export default Register;
