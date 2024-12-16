@@ -3,7 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const User = require("./models/User");
-const PostQuest = require("./models/PostQuest");
+const PostQuest = require("./models/Quest");
 
 const app = express();
 
