@@ -12,12 +12,12 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10); // Hash the password before saving
   next();
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword, this.password); // Compare entered password with stored hash
 };
 
 const User = mongoose.model('User', userSchema);

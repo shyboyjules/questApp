@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -26,7 +27,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://192.168.1.40:5000/api/user/register', {
+      const response = await fetch('http://192.168.1.19:5000/api/user/register', {  // Make sure the IP matches your backend server
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
@@ -34,9 +35,10 @@ const Register = () => {
 
       const data = await response.json();
       if (response.ok) {
-        router.push('account');
+        alert('Registration successful');
+        router.push('account');  // Navigate to the next screen
       } else {
-        alert(data.message);
+        alert(data.message || 'Something went wrong');
       }
     } catch (error) {
       console.error(error);
@@ -45,7 +47,7 @@ const Register = () => {
   };
 
   return (
-    <View style={styles.container}> 
+    <View style={styles.container}>
       <View style={styles.floatingContainer}>
         <Text style={styles.title}>Create an Account</Text>
         <View style={styles.nameContainer}>
@@ -102,7 +104,7 @@ const Register = () => {
             placeholder="Password"
             secureTextEntry
             placeholderTextColor="#888"
-            value={password} 
+            value={password}
             onChangeText={setPassword}
           />
         </View>
@@ -113,20 +115,20 @@ const Register = () => {
             secureTextEntry
             placeholderTextColor="#888"
             value={confirmPassword}
-            onChangeText={setConfirmPassword} 
+            onChangeText={setConfirmPassword}
           />
         </View>
 
         <TouchableOpacity
           style={styles.button}
-          onPress={handleRegister} 
+          onPress={handleRegister}
         >
           <Text style={styles.buttonText}>Create Account</Text>
         </TouchableOpacity>
 
         <Text style={styles.footerText}>
           Already have an account?{' '}
-          <Text style={styles.link} onPress={() => router.back('Login')}>
+          <Text style={styles.link} onPress={() => router.push('login')}>
             Login
           </Text>
         </Text>
@@ -134,7 +136,7 @@ const Register = () => {
     </View>
   );
 };
-  
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -142,12 +144,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     paddingHorizontal: 20,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 40, 
-    left: 10,
-    zIndex: 1, 
   },
   floatingContainer: {
     width: '90%',
@@ -157,24 +153,23 @@ const styles = StyleSheet.create({
     elevation: 10,
     shadowOpacity: 0.5,
     shadowRadius: 6,
-    marginTop:5,
+    marginTop: 5,
   },
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    alignContent:'center',
     color: 'white',
     marginBottom: 30,
   },
   nameContainer: {
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    width: '105%', 
-    marginBottom: 20, 
-   },
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '105%',
+    marginBottom: 20,
+  },
   inputWrapper: {
-    flex: 1, 
-    marginRight: 10, 
+    flex: 1,
+    marginRight: 10,
   },
   inputContainer: {
     width: '100%',
@@ -205,7 +200,7 @@ const styles = StyleSheet.create({
   },
   link: {
     color: '#3498db',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   footerText: {
     fontSize: 14,
@@ -215,4 +210,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
 export default Register;
