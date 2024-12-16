@@ -27,7 +27,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://192.168.1.19:5000/api/user/register', {  // Make sure the IP matches your backend server
+      const response = await fetch('http://192.168.1.4:8081/api/user/register', {  // Make sure the IP matches your backend server
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
